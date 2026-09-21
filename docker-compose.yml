@@ -1,0 +1,28 @@
+services:
+  token-service:
+    build: .
+    container_name: token-service
+    # 选择性暴露：不映射公网端口，仅服务内网可访问（chat service 经 Docker 网络调用）
+    environment:
+      - APP_ENV=production
+      # user-service / meta-service：Docker 同网络内用服务名
+      - USER_SERVICE_URL=http://user-service:8000
+      - META_SERVICE_URL=http://meta-service:9093
+      - JWKS_CACHE_TTL_SECONDS=3600
+      - META_TIMEOUT_SECONDS=10.0
+      - TOKEN_PER_REQUEST_LIMIT=15000
+      - TOKEN_DAILY_LIMIT=100000
+      # 写端点内部密钥（生产务必配置；支持多值轮换，JSON 数组或逗号分隔均可）
+      # 与 chat service 的 TOKEN_INTERNAL_KEY 一致；示例：["change-me-to-random-hex"]
+      # 为空时写端点一律 403（安全默认）
+      - TOKEN_INTERNAL_KEYS=
+      - TOKEN_FAIL_CLOSED=true
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9096/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
