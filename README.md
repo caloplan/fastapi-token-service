@@ -136,8 +136,20 @@ pytest          # 13 passed
 uvicorn app.main:app --port 9096 --reload
 ```
 
-## 关联组件
+## 相关项目（CaloPlan 全家桶）
 
-- 客户端/服务端 SDK：`caloplan-token`（TS）
-- 主要消费者：`fastapi-chat-service`（`app/ai/token_guard.py` 在所有 LLM 调用路径过闸）
-- `caloplan-core` **不感知** Token（Token 属基础设施，非业务领域模型）。
+CaloPlan 全栈项目统一托管在 GitHub Organization [caloplan](https://github.com/caloplan)：
+
+| 类型 | 项目 | 与本项目关系 |
+| --- | --- | --- |
+| 前端 | [coloplan-v2](https://github.com/caloplan/coloplan-v2) | 上层客户端：经 chat 门户只读展示 Token 用量 / 配额 |
+| SDK | [caloplan-token](https://github.com/caloplan/caloplan-token) | 客户端 / 服务端 SDK：check / consume / usage / quota / remaining |
+| SDK | [caloplan-chat](https://github.com/caloplan/caloplan-chat) | AI 对话模块（主要消费者：`token_guard` 在所有 LLM 调用路径过闸） |
+| SDK | [caloplan-core](https://github.com/caloplan/caloplan-core) | 餐食 / 食物领域模块（**不感知** Token，Token 属基础设施） |
+| SDK | [caloplan-user](https://github.com/caloplan/caloplan-user) | 用户 / 身体 / 营养目标模块（JWT 用户身份来源） |
+| SDK | [caloplan-cache](https://github.com/caloplan/caloplan-cache) | 本地缓存（兄弟 SDK） |
+| 微服务（本仓库） | [fastapi-token-service](https://github.com/caloplan/fastapi-token-service) | LLM Token 用量 / 配额微服务 |
+| 微服务 | [fastapi-chat-service](https://github.com/caloplan/fastapi-chat-service) | AI 对话服务（门户转发只读查询；内部密钥调用写端点） |
+| 微服务 | [mservice-fastapi-user](https://github.com/caloplan/mservice-fastapi-user) | 认证 / 用户微服务（JWKS 公钥来源，校验用户 JWT） |
+| 微服务 | [mservice-fastapi-metastorage](https://github.com/caloplan/mservice-fastapi-metastorage) | 元数据存储（Token 用量 / 配额落库复用，不引入新数据库） |
+| 微服务 | [fastapi-file-service](https://github.com/caloplan/fastapi-file-service) | 图片上传微服务 |
